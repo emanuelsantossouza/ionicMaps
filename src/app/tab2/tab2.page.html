@@ -1,17 +1,13 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <div class="container">
+    <ion-searchbar placeholder="Para onde?" (ionInput)="buscar($event)"></ion-searchbar>
+    <ion-list class="ion-margin-horizontal" *ngIf="listaEndereco.length > 0">
+      <ion-item *ngFor="let end of listaEndereco" lines="full" (click)="calcuRota(end)">
+        <ion-label>
+          {{end.description}}
+        </ion-label>
+      </ion-item>
+    </ion-list>
+    <div id="map" #map></div>
+  </div>
 </ion-content>
