@@ -1,10 +1,12 @@
 import { Component, ElementRef, NgZone, ViewChild } from '@angular/core';
-import { GoogleMap, Marker } from '@capacitor/google-maps';
+import { GoogleMap, Marker, Polyline } from '@capacitor/google-maps';
 import { environment } from 'src/environments/environment';
 import { Geolocation, Position } from '@capacitor/geolocation';
 import { LoadingController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { listaEnderecos } from '../model/requisicaoGoogleMaps';
+import { CameraConfig, LatLng } from '@capacitor/google-maps/dist/typings/definitions';
+
 
 
 declare var google: any;
@@ -27,11 +29,13 @@ export class Tab1Page {
   listaEnderecos: listaEnderecos[] = []
   origemMarker!: any;
   destination: any;
+  markerDestinion: any;
 
   dadosGeocodeApi: any;
   googleDeriction = new google.maps.DirectionsService()
-
-
+  usuarioCordenadas = Geolocation.getCurrentPosition();
+  polyLineId: string = '';
+  markerId: string = '';
 
   constructor(
     private loadCrtl: LoadingController,
@@ -42,13 +46,11 @@ export class Tab1Page {
 
   async ionViewDidEnter() {
     await this.CreateMap()
-    await this.addOringMarker()
   }
 
   async CreateMap() {
     this.loading = await this.loadCrtl.create({ message: 'Por favor, aguarde...' });
     await this.loading.present();
-    // const usuarioCordenadas = await Geolocation.getCurrentPosition();
 
     try {
       this.map = await GoogleMap.create({
@@ -57,18 +59,15 @@ export class Tab1Page {
         id: "Map-Cordova",
         config: {
           center: {
-            lat: -22.3281152,
-            lng: -48.5523456,
+            lat: (await this.usuarioCordenadas).coords.latitude,
+            lng: (await this.usuarioCordenadas).coords.longitude,
           },
-          zoom: 15,
+          zoom: 13,
           disableDefaultUI: true,
           disableDoubleClickZoom: true,
-          backgroundColor: "red"
+          backgroundColor: "white"
         }
       });
-
-
-
     } catch (erro) {
       console.log(erro);
     } finally {
@@ -82,31 +81,33 @@ export class Tab1Page {
     if (!busca.trim().length) {
       this.listaEnderecos = []
     }
-
     this.googleAutoComplet.getPlacePredictions({ input: busca }, (listaLocais: any) => {
       this.listaEnderecos = listaLocais;
     })
   }
 
   async addOringMarker() {
-    const mylocation = Geolocation.getCurrentPosition()
 
     try {
       this.origemMarker = this.map?.addMarker({
         title: 'Origem',
         coordinate: {
-          lat: (await mylocation).coords.latitude,
-          lng: (await mylocation).coords.longitude,
+          lat: (await this.usuarioCordenadas).coords.latitude,
+          lng: (await this.usuarioCordenadas).coords.longitude,
         }
       })
     } catch (erro) {
       console.log(`o erro aquii boy ${erro}`)
     }
+
+    this.markerId = this.origemMarker.getId();
+    console.log(this.markerId);
   }
 
 
   async calcuRota(item: any) {
-    this.serch = '';
+    this.addOringMarker()
+    this.destination = true
     console.log(item);
 
     this.http.get('https://maps.googleapis.com/maps/api/geocode/json', {
@@ -114,36 +115,88 @@ export class Tab1Page {
         key: environment.mapsKey,
         place_id: item.place_id,
       }
-
-    }).subscribe((dadosLocais) => {
+    }).subscribe(async (dadosLocais) => {
       this.dadosGeocodeApi = dadosLocais
       console.log(dadosLocais)
       console.log(this.dadosGeocodeApi.results[0])
 
-      const markerDestinion = this.map?.addMarker({
+      this.markerDestinion = this.map?.addMarker({
         coordinate: {
           lat: this.dadosGeocodeApi.results[0].geometry.location.lat,
           lng: this.dadosGeocodeApi.results[0].geometry.location.lng,
         },
-        title: this.dadosGeocodeApi.results[0].formatted_address
+        title: this.dadosGeocodeApi.results[0].formatted_address,
+        // iconUrl: 'https://raw.githubusercontent.com/emanuelsantossouza/tccImg/main/icons/Design%20sem%20nome%20(6).png',
+        iconSize: {
+          height: 50,
+          width: 50,
+        },
+        isFlat: true,
+        draggable: true,
       })
 
-      this.map?.addPolylines([{
-        editable: true,
-        draggable: true,
-        icons: [this.dadosGeocodeApi.results[0].geometry.location.lat,this.dadosGeocodeApi.results[0].geometry.location.lng],
-        strokeColor: '#000',
-        strokeWeight: 5
-      }])
+      const destinationLatLng = new google.maps.LatLng(
+        this.dadosGeocodeApi.results[0].geometry.location.lat,
+        this.dadosGeocodeApi.results[0].geometry.location.lng
+      );
 
-      console.log(this.map?.addPolylines([{
-        editable: true,
-        draggable: true,
-        icons: [this.origemMarker, markerDestinion],
-        strokeColor: '#000',
-        strokeWeight: 5
-       }]))
+      const oringLatLng = new google.maps.LatLng(
+        (await this.usuarioCordenadas).coords.latitude,
+        (await this.usuarioCordenadas).coords.longitude,
+      )
+
+      this.googleDeriction.route({
+        origin: oringLatLng,
+        destination: destinationLatLng,
+        travelMode: 'DRIVING',
+      }, async (results: any, status: any) => {
+        if (status === 'OK') {
+          const points: LatLng[] = [];
+
+          const routes = results.routes[0].overview_path;
+
+          for (let i = 0; i < routes.length; i++) {
+            points.push({
+              lat: routes[i].lat(),
+              lng: routes[i].lng()
+            });
+          }
+
+          const lines: Polyline[] = [
+            {
+              path: points,
+              strokeColor: '#EDCF00',
+              strokeWeight: 3,
+              geodesic: true,
+              visible: true,
+              clickable: true,
+            },
+          ];
+
+          await this.map?.addPolylines(lines);
+
+          const cameraConfig: CameraConfig = {
+            coordinate: {
+              lat: points[0].lat,
+              lng: points[0].lng
+            },
+            zoom: 15,
+          }
+          this.map?.setCamera(cameraConfig)
+        }
+      });
     }
-  )}
-}
+    )
+  }
 
+
+  async back() {
+    try {
+      await this.map?.removeMarker(this.markerId);
+      
+      this.destination = true
+    } catch (error) {
+
+    }
+  }
+}

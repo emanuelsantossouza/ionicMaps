@@ -1,20 +1,32 @@
 .container {
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
 capacitor-google-map {
   display: inline-block;
   width: 100%;
   height: 100%;
+  position: absolute;
 }
 
 
 ion-searchbar{
-  --background:#fff;
+  margin-top: 1rem;
+  --background:#ffffff;
+  --color: black;
+  --position: relative;
 }
 
 ion-list{
+  margin-top: .3.5rem;
   background-color: #fff;
   box-sizing: 0 0 10px rgba(0, 0, 0, 0.5);
+
+  .pesquisa{
+    background: #fff;
+    background-color: #fff;
+    font-size: 1rem;
+  }
 }

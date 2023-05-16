@@ -92,6 +92,7 @@ export class Tab2Page {
         key: environment.mapsKey,
         place_id: item.place_id,
       }
+      
     }).subscribe((dadosApi) => {
       this.dadosGeocodeApi = dadosApi;
 
