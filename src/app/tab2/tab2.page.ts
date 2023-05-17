@@ -80,7 +80,7 @@ export class Tab2Page {
         lng: myLocation.coords.longitude,
       },
       animation: google.maps.Animation.DROP,
-      opacity: 0.9
+      opacity: 0.9,
     });
   }
 
@@ -92,7 +92,7 @@ export class Tab2Page {
         key: environment.mapsKey,
         place_id: item.place_id,
       }
-      
+
     }).subscribe((dadosApi) => {
       this.dadosGeocodeApi = dadosApi;
 
@@ -113,6 +113,8 @@ export class Tab2Page {
         }
       });
     });
+
+
   }
 
   async ShowLoading(){
@@ -121,5 +123,9 @@ export class Tab2Page {
       duration: 1500
     });
     await this.loading.present();
+  }
+
+  async back() {
+   this.markeOrigem.setMap(null)
   }
 }

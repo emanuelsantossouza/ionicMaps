@@ -6,6 +6,8 @@ import { LoadingController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { listaEnderecos } from '../model/requisicaoGoogleMaps';
 import { CameraConfig, LatLng } from '@capacitor/google-maps/dist/typings/definitions';
+import { Plugins } from '@capacitor/core';
+import { EMPTY } from 'rxjs';
 
 
 
@@ -23,19 +25,21 @@ export class Tab1Page {
   map?: GoogleMap;
   loading?: HTMLIonLoadingElement;
   serch: string = '';
-  private googleAutoComplet = new google.maps.places.AutocompleteService();
 
-
+  polyLineId: string = '';
+  markerId: string = '';
   listaEnderecos: listaEnderecos[] = []
   origemMarker!: any;
   destination: any;
   markerDestinion: any;
-
   dadosGeocodeApi: any;
+  idMarke: any
+
+  googleAutoComplet = new google.maps.places.AutocompleteService();
   googleDeriction = new google.maps.DirectionsService()
   usuarioCordenadas = Geolocation.getCurrentPosition();
-  polyLineId: string = '';
-  markerId: string = '';
+  autocomplete: any;
+
 
   constructor(
     private loadCrtl: LoadingController,
@@ -45,7 +49,7 @@ export class Tab1Page {
   }
 
   async ionViewDidEnter() {
-    await this.CreateMap()
+    await this.CreateMap();
   }
 
   async CreateMap() {
@@ -75,35 +79,28 @@ export class Tab1Page {
     }
   }
 
-  async buscarEndereco(campoBusca: any) {
-    const busca = campoBusca.target.value as string;
+  buscarEndereco(buscaCampo: any) {
+    const busca = buscaCampo.target.value as string;
 
     if (!busca.trim().length) {
-      this.listaEnderecos = []
+      this.listaEnderecos = [];
     }
-    this.googleAutoComplet.getPlacePredictions({ input: busca }, (listaLocais: any) => {
-      this.listaEnderecos = listaLocais;
-    })
+
+    this.googleAutoComplet.getPlacePredictions({ input: busca }, (respotaServidor: any) => {
+      this.listaEnderecos = respotaServidor;
+      console.log(respotaServidor);
+    });
   }
 
   async addOringMarker() {
-
-    try {
-      this.origemMarker = this.map?.addMarker({
-        title: 'Origem',
-        coordinate: {
-          lat: (await this.usuarioCordenadas).coords.latitude,
-          lng: (await this.usuarioCordenadas).coords.longitude,
-        }
-      })
-    } catch (erro) {
-      console.log(`o erro aquii boy ${erro}`)
-    }
-
-    this.markerId = this.origemMarker.getId();
-    console.log(this.markerId);
+    this.origemMarker = this.map?.addMarker({
+      title: 'Sua localização',
+      coordinate: {
+        lat: (await this.usuarioCordenadas).coords.latitude,
+        lng: (await this.usuarioCordenadas).coords.longitude,
+      },
+    })
   }
-
 
   async calcuRota(item: any) {
     this.addOringMarker()
@@ -189,14 +186,61 @@ export class Tab1Page {
     )
   }
 
-
+  Id:number = 1
+  
   async back() {
-    try {
-      await this.map?.removeMarker(this.markerId);
-      
-      this.destination = true
-    } catch (error) {
+    this.map?.removeMarker( this.Id.toString() ? '1' : '2')
+    // this.addLisnerrs()
 
-    }
+
+    // this.map?.setOnMapClickListener((event) => {
+    //   console.log('passou aqui11111111111');
+    // });
+
+
+    // this.destination = false;
+  }
+
+
+  async removeMarke(id?: any) {
+    await this.map?.removeMarker(id ? id : this.idMarke)
+  }
+
+  async addLisnerrs() {
+
+    this.map?.setOnInfoWindowClickListener((event) => {
+      console.log(event.markerId)
+    })
+
+
+    this.map?.setOnMarkerDragListener((event) => {
+      console.log(event.markerId)
+    })
+
+
+
+    //   await this.map?.setOnMarkerClickListener((event) => {
+    //     console.log(`setOnMarkerClickListener ${event.mapId}`)
+    //   })
+
+    //   await this.map?.setOnMapClickListener((event) => {
+    //     console.log(`setOnMapClickListener ${event.mapId}`);
+    //     this.addMarker(event.latitude, event.longitude)
+    //   })
+
+    //   await this.map?.setOnMyLocationClickListener((event) => {
+    //     console.log(`setOnMyLocationClickListener ${event}`);
+    //     this.addMarker(event.latitude, event.longitude)
+    //   })
+
+
+
+    //   await this.map?.setOnInfoWindowClickListener((event) => {
+    //     console.log(event.latitude, event.longitude, event.mapId, event.markerId, event.snippet, event.title)
+    //   })
+
+    //   await this.map?.setOnCameraMoveStartedListener((event) => {
+    //     console.log(event.mapId)
+    //   })
   }
 }

@@ -1,6 +1,8 @@
 <ion-content [fullscreen]="true">
+
   <div class="container">
     <ion-searchbar placeholder="Para onde?" (ionInput)="buscar($event)"></ion-searchbar>
+
     <ion-list class="ion-margin-horizontal" *ngIf="listaEndereco.length > 0">
       <ion-item *ngFor="let end of listaEndereco" lines="full" (click)="calcuRota(end)">
         <ion-label>
@@ -8,6 +10,8 @@
         </ion-label>
       </ion-item>
     </ion-list>
+
+    <ion-button (click)="back()" fill="clear"></ion-button>
     <div id="map" #map></div>
   </div>
 </ion-content>
