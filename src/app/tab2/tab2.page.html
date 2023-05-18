@@ -1,6 +1,8 @@
 <ion-content [fullscreen]="true">
 
   <div class="container">
+    <div id="map" #map></div>
+
     <ion-searchbar placeholder="Para onde?" (ionInput)="buscar($event)"></ion-searchbar>
 
     <ion-list class="ion-margin-horizontal" *ngIf="listaEndereco.length > 0">
@@ -11,7 +13,8 @@
       </ion-item>
     </ion-list>
 
-    <ion-button (click)="back()" fill="clear"></ion-button>
-    <div id="map" #map></div>
+    <ion-button (click)="back()" class="ion-margin-top" fill="clear">
+      <ion-icon name="chevron-back-outline" color="dark"></ion-icon>
+    </ion-button>
   </div>
 </ion-content>

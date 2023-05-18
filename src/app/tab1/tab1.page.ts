@@ -6,9 +6,6 @@ import { LoadingController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { listaEnderecos } from '../model/requisicaoGoogleMaps';
 import { CameraConfig, LatLng } from '@capacitor/google-maps/dist/typings/definitions';
-import { Plugins } from '@capacitor/core';
-import { EMPTY } from 'rxjs';
-
 
 
 declare var google: any;
@@ -30,7 +27,7 @@ export class Tab1Page {
   markerId: string = '';
   listaEnderecos: listaEnderecos[] = []
   origemMarker!: any;
-  destination: any;
+  destination: boolean = false;
   markerDestinion: any;
   dadosGeocodeApi: any;
   idMarke: any
@@ -43,13 +40,12 @@ export class Tab1Page {
 
   constructor(
     private loadCrtl: LoadingController,
-    private ngZone: NgZone,
     private http: HttpClient) {
-    console.log(this.googleAutoComplet)
   }
 
   async ionViewDidEnter() {
     await this.CreateMap();
+    console.log(this.usuarioCordenadas)
   }
 
   async CreateMap() {
@@ -186,61 +182,8 @@ export class Tab1Page {
     )
   }
 
-  Id:number = 1
-  
-  async back() {
-    this.map?.removeMarker( this.Id.toString() ? '1' : '2')
-    // this.addLisnerrs()
-
-
-    // this.map?.setOnMapClickListener((event) => {
-    //   console.log('passou aqui11111111111');
-    // });
-
-
-    // this.destination = false;
-  }
-
-
-  async removeMarke(id?: any) {
-    await this.map?.removeMarker(id ? id : this.idMarke)
-  }
-
-  async addLisnerrs() {
-
-    this.map?.setOnInfoWindowClickListener((event) => {
-      console.log(event.markerId)
-    })
-
-
-    this.map?.setOnMarkerDragListener((event) => {
-      console.log(event.markerId)
-    })
-
-
-
-    //   await this.map?.setOnMarkerClickListener((event) => {
-    //     console.log(`setOnMarkerClickListener ${event.mapId}`)
-    //   })
-
-    //   await this.map?.setOnMapClickListener((event) => {
-    //     console.log(`setOnMapClickListener ${event.mapId}`);
-    //     this.addMarker(event.latitude, event.longitude)
-    //   })
-
-    //   await this.map?.setOnMyLocationClickListener((event) => {
-    //     console.log(`setOnMyLocationClickListener ${event}`);
-    //     this.addMarker(event.latitude, event.longitude)
-    //   })
-
-
-
-    //   await this.map?.setOnInfoWindowClickListener((event) => {
-    //     console.log(event.latitude, event.longitude, event.mapId, event.markerId, event.snippet, event.title)
-    //   })
-
-    //   await this.map?.setOnCameraMoveStartedListener((event) => {
-    //     console.log(event.mapId)
-    //   })
+  back() {
+    this.map?.destroy()
+    this.CreateMap()
   }
 }

@@ -2,17 +2,63 @@
 
   <capacitor-google-map #map></capacitor-google-map>
 
-  <ion-searchbar placeholder="Para onde?" (ionChange)="buscarEndereco($event)"></ion-searchbar>
-
+  <ion-searchbar placeholder="Para onde?" (ionInput)="buscarEndereco($event)"></ion-searchbar>
   <ion-button class="ion-margin-top" (click)="back()" fill="clear" *ngIf="destination">
     <ion-icon slot="icon-only" name="chevron-back-outline" color="dark"></ion-icon>
   </ion-button>
 
-  <ion-list class="ion-margin-horizontal"  [hidden]="!listaEnderecos.length">
+  <ion-list  id="open-modal" class="ion-margin-horizontal" *ngIf="listaEnderecos.length">
     <ion-item class="pesquisa" (click)="calcuRota(end)" *ngFor="let end of listaEnderecos" lines="full">
       <ion-label>
         {{end.description}}
       </ion-label>
     </ion-item>
   </ion-list>
+
+  <div class="" *ngIf="destination">
+
+    <ion-footer>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Bases mais proximas de você</ion-card-title>
+          <ion-card-subtitle>escolha a sua favorita!!!</ion-card-subtitle>
+        </ion-card-header>
+  
+        <ion-card-content>
+          <ion-list>
+            <ion-item>
+              <ion-thumbnail slot="start">
+                <img alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+              </ion-thumbnail>
+              <ion-label>Item</ion-label>
+            </ion-item>
+      
+            <ion-item>
+              <ion-thumbnail slot="start">
+                <img alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+              </ion-thumbnail>
+              <ion-label>Item</ion-label>
+            </ion-item>
+      
+            <ion-item>
+              <ion-thumbnail slot="start">
+                <img alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+              </ion-thumbnail>
+              <ion-label>Item</ion-label>
+            </ion-item>
+      
+            <ion-item lines="none">
+              <ion-thumbnail slot="start">
+                <img alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+              </ion-thumbnail>
+              <ion-label>Item</ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </ion-footer>
+    
+  </div>
+  
+
 </ion-content>

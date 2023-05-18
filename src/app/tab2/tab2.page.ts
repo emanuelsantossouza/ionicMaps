@@ -24,9 +24,11 @@ export class Tab2Page {
   private directionsRenderer = new google.maps.DirectionsRenderer();
 
   listaEndereco: listaEnderecos[] = [];
-  markeOrigem: any;
+  markerOrigem: any;
   dadosGeocodeApi: any;
   loading?: HTMLIonLoadingElement;
+
+  destination!: boolean
 
   constructor(
     private loadCrtl: LoadingController,
@@ -40,7 +42,6 @@ export class Tab2Page {
   }
 
   initMap(): void {
-    this.ShowLoading()
     try {
       this.map = new google.maps.Map(this.mapView!.nativeElement, {
         mapId: 'Mapa-TCC Chama aí',
@@ -72,7 +73,7 @@ export class Tab2Page {
   async addMarker() {
     const myLocation = await Geolocation.getCurrentPosition();
 
-    this.markeOrigem = new google.maps.Marker({
+    this.markerOrigem = new google.maps.Marker({
       map: this.map,
       title: 'Origem',
       position: {
@@ -86,6 +87,7 @@ export class Tab2Page {
 
   calcuRota(item: any) {
     console.log(item);
+    this.destination = true
 
     this.http.get('https://maps.googleapis.com/maps/api/geocode/json', {
       params: {
@@ -102,7 +104,7 @@ export class Tab2Page {
       );
 
       const request = {
-        origin: this.markeOrigem.getPosition(),
+        origin: this.markerOrigem.getPosition(),
         destination: destinationLatLng,
         travelMode: google.maps.TravelMode.DRIVING
       };
@@ -117,7 +119,7 @@ export class Tab2Page {
 
   }
 
-  async ShowLoading(){
+  async ShowLoading() {
     this.loading = await this.loadCrtl.create({
       message: 'Precisamos utilizar a sua localização para conctar você com os nosso motoboys....',
       duration: 1500
@@ -125,7 +127,8 @@ export class Tab2Page {
     await this.loading.present();
   }
 
-  async back() {
-   this.markeOrigem.setMap(null)
+  back(){
+    google.maps.
+    this.markerOrigem.setMap(null);
   }
 }
