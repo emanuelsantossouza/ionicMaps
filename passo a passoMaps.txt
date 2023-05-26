@@ -1,0 +1,57 @@
+abaixa os aquivos do pwa 
+1- ir na pagina do ionic.
+2- ir até o build first app 
+e excultar os seguintes codigos
+-- no terminal
+ npm install @ionic/pwa-elements
+
+importa no main.ts do seu projeto
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
+
+// Call the element loader after the platform has been bootstrapped
+defineCustomElements(window);
+
+excultar no terminal
+ng add @angular/pwa
+
+ionic build --prod
+
+
+
+3- colar o script do google no index.html
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key="SUA CHAVE DO GOOLE"&libraries=places">
+  </script>
+
+4- para criar um mapa crie o seguinte comando no tabs1
+ <capacitor-google-map #map></capacitor-google-map>
+
+5- configurar o ts do tabs1
+@ViewChild('map', { static: false }) mapRef?: ElementRef;
+
+ map?: GoogleMap;
+
+
+  this.map = await GoogleMap.create({
+        apiKey: environment.mapsKey,
+        element: this.mapRef?.nativeElement,
+        id: "Map-Cordova",
+        config: {
+          center: {
+            lat:<COLOQUE A LAT DESEJADA>,
+            lng:<COLOQUE A LGN DESEJADA>,
+          },
+          zoom: 13,
+        }
+      });
+
+6- Agora vamos criar uma markador
+  async addOringMarker() {
+    this.origemMarker = this.map?.addMarker({
+      title: 'Sua localização',
+      coordinate: {
+        lat: <COLOQUE A LAT DESEJADA>,
+        lng: <COLOQUE A LGN DESEJADA>,
+      },
+    })
+  }
